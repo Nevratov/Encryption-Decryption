@@ -1,0 +1,86 @@
+package encryptdecrypt
+
+import java.io.File
+
+const val MIN_LOW_CODE = 97
+const val MAX_LOW_CODE = 122
+const val MIN_UP_CODE = 65
+const val MAX_UP_CODE = 90
+
+fun main(args: Array<String>) {
+
+    var result = ""
+
+    var mode = "dec"
+    var key = 0
+    var dataText = ""
+    var inputText = ""
+    var text = ""
+    var outText = ""
+    var alg = "shift"
+
+    for (arg in args) {
+        if (arg == "-mode") mode = args[args.indexOf("-mode") + 1]
+        if (arg == "-key") key = args[args.indexOf("-key") + 1].toInt()
+        if (arg == "-data") dataText = args[args.indexOf("-data") + 1]
+        if (arg == "-in") inputText = args[args.indexOf("-in") + 1]
+        if (arg == "-out") outText = args[args.indexOf("-out") + 1]
+        if (arg == "-alg") alg = args[args.indexOf("-alg") + 1]
+    }
+
+
+
+    if (dataText.isNotEmpty()) {
+        text = dataText
+    } else if (inputText.isNotEmpty()) {
+        val readText = File(inputText).readText()
+        text = readText
+    }
+
+    if (alg == "shift") {
+        when(mode) {
+            "enc" -> for (chr in text) {
+                result += if (!chr.isLetter()) chr
+                else {
+                    when (true) {
+                        chr.isLowerCase() -> if (chr.code > MAX_LOW_CODE - key) (key - (MAX_LOW_CODE - chr.code + 1) + MIN_LOW_CODE).toChar() else (chr + key)
+                        chr.isUpperCase() -> if (chr.code > MAX_UP_CODE - key) (key - (MAX_UP_CODE - chr.code + 1) + MIN_UP_CODE).toChar() else (chr + key)
+                        else -> println("Error")
+                    }
+                }
+            } "dec" -> for (chr in text) {
+                result += if (!chr.isLetter()) chr
+                else {
+                    when (true) {
+                        chr.isLowerCase() -> if (chr.code - key < MIN_LOW_CODE) (MAX_LOW_CODE -  (key - (chr.code - MIN_LOW_CODE + 1))).toChar() else (chr - key)
+                        chr.isUpperCase() -> if (chr.code - key < MIN_UP_CODE) (MAX_UP_CODE - (key - (chr.code - MIN_UP_CODE + 1))).toChar() else (chr - key)
+                        else -> println("Error")
+                    }
+                }
+            }
+        }
+    } else {
+        when(mode) {
+            "dec" -> for (chr in text) result += chr - key
+            "enc" -> for (chr in text) result += chr + key
+        }
+     }
+
+
+    if (outText.isNotEmpty()) {
+        val writeText = File(outText)
+        writeText.writeText(result)
+    } else println(result)
+
+
+
+    println(mode)
+    println(key)
+    println(dataText)
+    println(inputText)
+    println(text)
+    println(outText)
+    println(alg)
+    println(result)
+    println("123")
+}
